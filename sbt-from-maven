@@ -1,0 +1,65 @@
+#!/bin/sh
+
+if [ -f project/build.properties ]
+then
+    echo The file, project/build.properties, already exists.
+    exit
+fi
+
+if [ -f pom.xml ]
+then
+    echo Creating SBT stuff
+    scala -savecompiled "$0" 
+    mkdir -p project/build
+    cp /work/github/sbt-stuff/ProjectTools.scala project/build/
+fi
+
+exec sbt exit
+!#
+
+val defaultOrganization = "Beeherd"
+val sbtVersion = "0.7.7"
+val buildVersion = "2.9.0"
+
+import java.io._
+
+val pom = scala.xml.XML.loadFile(new File("pom.xml"))
+
+val name = (pom \ "artifactId").text.trim
+val organization = {
+    val tmp = (pom \ "organization" \ "name").text.trim
+    if (tmp.isEmpty) {
+        println("Using default organization, " + defaultOrganization);
+        defaultOrganization
+    } else {
+        tmp
+    }
+}
+val version = (pom \ "version").text.trim
+
+val projectDir = new File("project")
+projectDir.mkdirs()
+
+val buildProps = new File(projectDir, "build.properties")
+
+writeLines(buildProps
+  , "project.organization=" + organization
+  , "project.name=" + name
+  , "project.version=" + version
+  , "sbt.version=" + sbtVersion
+  , "build.scala.versions=" + buildVersion
+)
+
+def writeLines(target: File, lines: String*): Unit = 
+  writeLines(target, lines.toList)
+
+def writeLines(target: File, lines: List[String]): Unit =
+    use(new FileWriter(target)) {w => lines.foreach {l => w.write (l + "\n") }}
+
+def use[R <: Closeable, T](closeable: R)(f: (R) => T): T = {
+  try {
+      f(closeable)
+  } finally {
+      try { closeable.close() } catch { case e:Exception => {}}
+  }
+}

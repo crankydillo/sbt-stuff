@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ ! -f pom.xml ]
+then
+    echo Did not find a pom.xml.  Exiting.
+fi
+
+if [ -d lib_managed ]
+then
+    rm -f lib_managed/*.jar
+else
+    mkdir lib_managed
+fi
+ 
+mvn dependency:copy-dependencies
+cp target/dependency/* lib_managed/
