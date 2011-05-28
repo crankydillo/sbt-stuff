@@ -1,0 +1,7 @@
+Custom stuff for SBT
+
+sbtc
+----
+A bash script that creates the SBT stuff that I want.  It uses a Maven pom file
+in order to fill in SBT's name, version, and organization.  It works with sbt
+0.7.7.
