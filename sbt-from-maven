@@ -12,6 +12,9 @@ then
     scala -savecompiled "$0" 
     mkdir -p project/build
     cp /work/github/sbt-stuff/ProjectTools.scala project/build/
+else
+    echo The file, pom.xml, does not exist.
+    exit
 fi
 
 exec sbt exit
